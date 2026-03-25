@@ -4,7 +4,7 @@ This repository contains the source code for the exam of Languages, Compilers an
 
 ## Usage
 
-Clone the repository:
+- Clone the repository:
 
 ```bash
 git clone https://github.com/francescoborri/mini-langs
