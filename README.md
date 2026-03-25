@@ -35,4 +35,4 @@ dune exec -- mimpc <num_regs> <src> <out> [--check-undef-vars] [--liveness-optim
 dune exec -- mrisc <num_regs> <out>
 ```
 
-There are also additional debug flags available for every command, which can be used to print the abstract syntax tree or the control-flow graph of the program: they are better explained by the `--help` flag of each command.
+There are also additional debug flags available for every command, which can be used to print the abstract syntax tree or the control-flow graph of the program: they are better explained by the `--help` flag of each command. There are also available some test programs for both languages under the folders `programs/miniImp` and `programs/miniTyFun`.
