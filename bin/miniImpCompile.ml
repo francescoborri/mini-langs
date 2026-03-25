@@ -6,7 +6,7 @@ let src = ref ""
 let out = ref ""
 let opt_check_undef_vars = ref false
 let opt_liveness_optimization = ref false
-let opt_constant_propagation = ref false
+let opt_propagate_constant = ref false
 let opt_print_tokens = ref false
 let opt_print_ast = ref false
 let opt_print_mimp_cfg = ref false
@@ -40,8 +40,8 @@ let speclist =
     ( "--liveness-optimization",
       Arg.Set opt_liveness_optimization,
       "Enable optimization using static liveness analysis" );
-    ( "--enable-constant-propagation",
-      Arg.Set opt_constant_propagation,
+    ( "--propagate-constant",
+      Arg.Set opt_propagate_constant,
       "Enable constant propagation" );
     ( "--print-tokens",
       Arg.Set opt_print_tokens,
@@ -77,7 +77,7 @@ let speclist =
 
 let usage_msg =
   "Usage: mimpc <num_regs> <src> <out> [--check-undef-vars] \
-   [--liveness-optimization] [--enable-constant-propagation] [--print-tokens] \
+   [--liveness-optimization] [--propagate-constant] [--print-tokens] \
    [--print-ast] [--print-mimp-cfg] [--print-mimp-defined-vars] \
    [--print-mrisc-cfg] [--print-mrisc-cfg-with-jumps] \
    [--print-mrisc-live-regs] [--print-allocated-mrisc-cfg] \
@@ -132,7 +132,7 @@ let () =
       if !opt_print_tokens then !src |> MiniImpLib.scan |> print_tokens;
       let ast = MiniImpLib.parse !src in
       let ast =
-        if !opt_constant_propagation then MiniImpLib.propagate_constants ast
+        if !opt_propagate_constant then MiniImpLib.propagate_constants ast
         else ast
       in
       if !opt_print_ast then print_ast ast;
