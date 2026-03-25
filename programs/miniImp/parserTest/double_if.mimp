@@ -1,0 +1,8 @@
+def main with input x output y as
+    if x < 0 then
+        y := -1
+    else
+        if x < 1 then
+            y := 0
+        else
+            y := 1

@@ -1,0 +1,28 @@
+def main with input x output y as
+    y := 1;
+    a := 0;
+    b := 0;
+    c := 0;
+    d := 0;
+    e := 0;
+    n := x;
+    if n < 1 then
+        skip
+    else
+        while 0 < n do (
+            a := y;
+            b := 0;
+            while b < a do (
+                c := y;
+                d := 0;
+                while d < c do (
+                    e := y;
+                    y := y + e;
+                    d := d + 1
+                );
+                y := y + c;
+                b := b + 1
+            );
+            y := y + a;
+            n := n - 1
+        )

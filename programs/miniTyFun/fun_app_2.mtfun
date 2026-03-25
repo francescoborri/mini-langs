@@ -1,0 +1,1 @@
+fun x: int => letfun f x: int -> int = 2 * x in if x == 1 then f 0 else f (x + 1)

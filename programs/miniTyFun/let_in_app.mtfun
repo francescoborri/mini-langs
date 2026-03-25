@@ -1,0 +1,1 @@
+let f = fun y: int => y * 2 in fun x: int => f x + f 1

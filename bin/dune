@@ -1,0 +1,19 @@
+(executable
+ (name miniImpRun)
+ (public_name mimp)
+ (libraries miniImpLib utils))
+
+(executable
+ (name miniTyFunRun)
+ (public_name mtfun)
+ (libraries miniTyFunLib miniFunLib utils))
+
+(executable
+ (name miniImpCompile)
+ (public_name mimpc)
+ (libraries genericCFG miniImpLib miniRISCLib utils))
+
+(executable
+ (name miniRISCRun)
+ (public_name mrisc)
+ (libraries miniRISCLib utils))

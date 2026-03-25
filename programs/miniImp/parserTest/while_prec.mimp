@@ -1,0 +1,5 @@
+def main with input x output y as
+    y := 1;
+    while not x < 0 do
+        x := x - 1;
+        y := y * 2

@@ -1,0 +1,1 @@
+letfun f x: int -> int = 2 * x in letfun g x: int -> int = 4 * x in fun x: int => f (-x) + g x

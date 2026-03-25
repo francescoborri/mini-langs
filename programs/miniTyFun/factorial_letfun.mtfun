@@ -1,0 +1,3 @@
+letfun fact x : int -> int =
+    if x < 2 then x else x * (fact (x - 1))
+in fun x: int => fact x

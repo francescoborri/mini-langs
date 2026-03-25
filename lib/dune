@@ -1,0 +1,82 @@
+(ocamllex
+ (modules miniImpLexer))
+
+(ocamllex
+ (modules miniTyFunLexer))
+
+(ocamllex
+ (modules miniRISCLexer))
+
+(menhir
+ (modules miniImpParser))
+
+(menhir
+ (modules miniTyFunParser))
+
+(menhir
+ (modules miniRISCParser))
+
+(library
+ (name env)
+ (modules env))
+
+(library
+ (name var)
+ (modules var)
+ (libraries env))
+
+(library
+ (name genericCFG)
+ (modules genericCFG))
+
+(library
+ (name utils)
+ (modules utils colorText))
+
+(library
+ (name miniImpLib)
+ (modules
+  miniImpLib
+  miniImpAST
+  miniImpLexer
+  miniImpParser
+  miniImpInterpreter
+  miniImpCFG
+  miniImpUtils
+  miniImpDefinedVariablesAnalysis)
+ (modules_without_implementation miniImpAST)
+ (libraries var env genericCFG))
+
+(library
+ (name miniFunLib)
+ (modules miniFunLib miniFunAST miniFunInterpreter)
+ (modules_without_implementation miniFunAST)
+ (libraries var env))
+
+(library
+ (name miniTyFunLib)
+ (modules
+  miniTyFunLib
+  miniTyFunAST
+  miniTyFunLexer
+  miniTyFunParser
+  miniTyFunTypeChecker
+  miniTyFunUtils)
+ (modules_without_implementation miniTyFunAST)
+ (libraries var env miniFunLib))
+
+(library
+ (name miniRISCLib)
+ (modules
+  miniRISCLib
+  miniRISCInstructionSet
+  miniRISCLexer
+  miniRISCParser
+  miniRISCInterpreter
+  miniRISCCFG
+  miniRISCLiveRegistersAnalysis
+  miniRISCRegisterAllocation
+  miniRISCRegUtils
+  miniRISCUtils)
+ (modules_without_implementation miniRISCInstructionSet)
+ (libraries var genericCFG miniImpLib utils))

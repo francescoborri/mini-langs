@@ -1,0 +1,3 @@
+def main with input x output y as
+    y := 1 - - 1;
+    y := y + 1

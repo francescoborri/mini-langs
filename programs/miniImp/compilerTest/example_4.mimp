@@ -1,0 +1,31 @@
+def main with input x output y as
+    a := x;
+    if a < 0 then a := 0 - a else skip;
+    i := 0;
+    acc := 0;
+    flip := 0;
+    if 0 < a then gate := 1 else gate := 0;
+    while i < a do (
+        t := acc + i;
+        if 0 < flip then odd := 1 else odd := 0;
+        if (odd < 1) and (gate < 1) then
+            acc := t + flip
+        else
+            if (flip < 1) and (i < 2) then
+                acc := t + 1
+            else
+                acc := t - 1;
+        if flip < 1 then flip := 1 else flip := 0;
+        if (acc < 0) and (a < i) then
+            guard := 0
+        else
+            if (i < 1) and (0 < gate) then
+                guard := 1
+            else
+                guard := acc;
+        i := i + 1
+    );
+    if (guard < acc) and not (acc < 0) then
+        y := acc + gate
+    else
+        y := guard + flip

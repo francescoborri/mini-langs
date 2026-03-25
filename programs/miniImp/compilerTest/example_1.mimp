@@ -1,0 +1,17 @@
+def main with input x output y as
+    a := x;
+    if a < 0 then
+        z := (0 - a) + (1 * x) * (x + 3 - 2) + (2 - 3)
+    else
+        skip;
+    if a < 1 the
+        f := 1
+    else
+        skip;
+    b := a + 1;
+    while not (not (a < b) and not (b < a)) do
+        if a < b then
+            b := b - a
+        else
+            a := a - b;
+    y := a

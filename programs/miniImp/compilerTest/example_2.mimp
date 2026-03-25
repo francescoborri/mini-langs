@@ -1,0 +1,14 @@
+def main with input x output y as
+    z := 0;
+    if x < 0 then 
+        while true do
+            if true then
+                z := 1
+            else
+                z := 0
+    else
+        if true then
+            x := 1
+        else
+            x := 2;
+    y := z

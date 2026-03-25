@@ -1,0 +1,1 @@
+fun x: int => (fun y: int => 42) 0

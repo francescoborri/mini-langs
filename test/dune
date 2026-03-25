@@ -1,0 +1,19 @@
+(test
+ (name test_miniImpInterpreter)
+ (modules test_miniImpInterpreter testUtils)
+ (libraries miniImpLib utils))
+
+(test
+ (name test_miniFunInterpreter)
+ (modules test_miniFunInterpreter testUtils)
+ (libraries miniFunLib utils))
+
+(test
+ (name test_miniTyFunInterpreter)
+ (modules test_miniTyFunInterpreter testUtils)
+ (libraries miniTyFunLib utils))
+
+(test
+ (name test_miniTyFunLib)
+ (modules test_miniTyFunLib testUtils)
+ (libraries miniTyFunLib utils))
