@@ -41,6 +41,7 @@ let () =
       let output = MiniRISCLib.run ast num_regs input in
       Printf.printf "%d\n" output
     with
+    | Arg.Bad _ -> Arg.usage speclist usage_msg
     | Lexer.LexicalError msg ->
         Printf.eprintf "%s %s\n" (color_text red "[Lexical error]") msg
     | Parser.Error -> prerr_endline (color_text red "[Syntax error]")

@@ -1,3 +1,4 @@
+open GenericCFG
 open MiniRISCInstructionSet
 open MiniRISCLexer
 open MiniRISCParser
@@ -24,15 +25,18 @@ let parse src =
 let run = Interpreter.run
 let translate_cfg = CFG.translate_cfg
 let add_jump_instrs = CFG.add_jump_instrs
+let standard_reg_alloc = RegisterAllocation.standard_reg_alloc
+let optimized_reg_alloc = RegisterAllocation.optimized_reg_alloc
 
-let optimized_register_allocation =
-  RegisterAllocation.optimized_register_allocation
-
-let unoptimized_register_allocation =
-  RegisterAllocation.unoptimized_register_allocation
-
-let compile dest cfg =
-  let target_code = cfg |> Utils.generate_target_code in
-  open_out dest |> fun out ->
-  output_string out target_code;
-  close_out out
+let generate_target_code cfg =
+  cfg.code_map |> NodeMap.to_list
+  |> List.map (fun (node, instrs) ->
+      let label_str = node |> Utils.label_of_node cfg |> string_of_label in
+      let instrs_str =
+        instrs
+        |> List.map string_of_instruction
+        |> List.map (( ^ ) "  ")
+        |> String.concat "\n"
+      in
+      Printf.sprintf "%s:\n%s" label_str instrs_str)
+  |> String.concat "\n"

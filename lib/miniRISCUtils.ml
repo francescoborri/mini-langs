@@ -1,4 +1,5 @@
 open GenericCFG
+open Utils
 open MiniRISCInstructionSet
 open MiniRISCParser
 open MiniRISCLiveRegistersAnalysis
@@ -56,48 +57,46 @@ let string_of_instruction = function
         (string_of_label label_true)
         (string_of_label label_false)
 
-let string_of_cfg =
-  GenericCFG.string_of_cfg
-    (fun (instrs, opt_reg) ->
-      Printf.sprintf "%s%s"
-        (instrs |> List.map string_of_instruction |> String.concat "\n")
-        (Option.fold ~none:""
-           ~some:(fun reg ->
-             Printf.sprintf "\nGuard register: %s" (string_of_reg reg))
-           opt_reg))
-    string_of_reg
+let label_of_node cfg node =
+  if node = cfg.initial_node then MainLabel
+  else
+    let (Node node_id) = node in
+    Label node_id
 
-let string_of_cfg_with_jumps =
-  GenericCFG.string_of_cfg
-    (fun instrs ->
-      instrs |> List.map string_of_instruction |> String.concat "\n")
+let dot_string_of_cfg cfg =
+  { cfg with code_map = NodeMap.map fst cfg.code_map }
+  |> GenericCFG.dot_string_of_cfg
+       (List.map string_of_instruction >> String.concat "\n")
+       string_of_reg
+       (label_of_node cfg >> string_of_label >> Option.some)
+
+let dot_string_of_cfg_with_jumps cfg =
+  GenericCFG.dot_string_of_cfg
+    (List.map string_of_instruction >> String.concat "\n")
     string_of_reg
+    (label_of_node cfg >> string_of_label >> Option.some)
+    cfg
 
 let string_of_live_regs cfg analysis_state =
   analysis_state
   |> NodeMap.mapi (fun node { in_regs; out_regs } ->
-      let label =
-        if node = cfg.initial_node then MainLabel
-        else
-          Label
-            (let (Node id) = node in
-             id)
-      in
-      Printf.sprintf "%s:\n  In: {%s}\n  Out: {%s}" (string_of_label label)
+      let label = label_of_node cfg node in
+      Printf.sprintf "%s:\n  - Live in: { %s }\n  - Live out: { %s }" (string_of_label label)
         (in_regs |> RegSet.to_list |> List.map string_of_reg
        |> String.concat ", ")
         (out_regs |> RegSet.to_list |> List.map string_of_reg
        |> String.concat ", "))
   |> NodeMap.to_list |> List.map snd |> String.concat "\n"
 
-let generate_target_code cfg =
-  cfg.code_map |> NodeMap.to_list
-  |> List.map (fun (node, instrs) ->
-      let (Node node_id) = node in
-      let label =
-        if node = cfg.initial_node then MainLabel else Label node_id
-      in
-      Printf.sprintf "%s:\n%s" (string_of_label label)
-        (String.concat "\n"
-           (List.map (fun instr -> "  " ^ string_of_instruction instr) instrs)))
-  |> String.concat "\n"
+let string_of_spilled_regs =
+  RegSet.elements >> List.map string_of_reg >> String.concat ", "
+  >> Printf.sprintf "Spilled registers: { %s }"
+
+let string_of_reg_coloring =
+  RegMap.bindings
+  >> List.map (fun (virtual_reg, physical_reg) ->
+      Printf.sprintf "  - %s -> %s"
+        (string_of_reg virtual_reg)
+        (string_of_reg physical_reg))
+  >> String.concat "\n"
+  >> Printf.sprintf "Register coloring:\n%s"

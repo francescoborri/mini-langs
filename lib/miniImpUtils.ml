@@ -1,3 +1,4 @@
+open Utils
 open MiniImpParser
 open MiniImpAST
 open MiniImpCFG
@@ -83,8 +84,8 @@ let string_of_simple_cmd = function
   | SAssign (x, aexpr) -> Printf.sprintf "%s := %s" x (string_of_aexpr aexpr)
   | SGuard bexpr -> Printf.sprintf "%s?" (string_of_bexpr bexpr)
 
-let string_of_cfg =
-  GenericCFG.string_of_cfg
-    (fun simple_cmds ->
-      simple_cmds |> List.map string_of_simple_cmd |> String.concat "\n")
-    (fun x -> x)
+let dot_string_of_cfg =
+  GenericCFG.dot_string_of_cfg
+    (List.map string_of_simple_cmd >> String.concat "\n")
+    id
+    (fun _ -> None)

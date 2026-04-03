@@ -33,7 +33,7 @@ let run = Interpreter.run
 let propagate_constants = CFG.propagate_constants
 let build_cfg = CFG.build_cfg
 
-let run_defined_vars_analysis cfg =
+let check_undef_vars cfg =
   match DefinedVariablesAnalysis.analyze cfg with
   | [] -> ()
   | [ { undef_var; expr } ] ->

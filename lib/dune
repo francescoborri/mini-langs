@@ -27,7 +27,8 @@
 
 (library
  (name genericCFG)
- (modules genericCFG))
+ (modules genericCFG)
+ (libraries utils))
 
 (library
  (name utils)
@@ -45,7 +46,7 @@
   miniImpUtils
   miniImpDefinedVariablesAnalysis)
  (modules_without_implementation miniImpAST)
- (libraries var env genericCFG))
+ (libraries var env genericCFG utils))
 
 (library
  (name miniFunLib)

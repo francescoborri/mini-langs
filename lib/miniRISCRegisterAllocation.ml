@@ -146,7 +146,7 @@ let add_edge reg1 reg2 edges =
 (** Builds the edges of a complete interference graph, meaning that liveness
     analysis is not exploited to derive more precise information about live
     ranges: every node is connected to every other node (except himself) *)
-let build_unoptimized_interference_graph cfg =
+let build_standard_interference_graph cfg =
   let regs, spill_cost_map = collect_regs_with_spill_cost cfg in
   ( RegSet.fold
       (fun reg edges ->
@@ -584,7 +584,7 @@ let restore_reg_in_out reg_coloring reg_in_addr reg_out_addr cfg =
     coloring and finally restoring the in and out register if they were spilled.
     Returns the register-allocated CFG together with the set of spilled
     registers and the register coloring, for debugging purposes *)
-let register_allocation num_regs cfg building_function =
+let reg_alloc num_regs cfg building_function =
   (* A and B register cannot be used for coloring because they are reserved for
       spill code generation *)
   let num_regs = num_regs - 2 in
@@ -598,8 +598,8 @@ let register_allocation num_regs cfg building_function =
     spilled_regs,
     reg_coloring )
 
-let optimized_register_allocation num_regs cfg =
-  register_allocation num_regs cfg build_optimized_interference_graph
+let standard_reg_alloc num_regs cfg =
+  reg_alloc num_regs cfg build_standard_interference_graph
 
-let unoptimized_register_allocation num_regs cfg =
-  register_allocation num_regs cfg build_unoptimized_interference_graph
+let optimized_reg_alloc num_regs cfg =
+  reg_alloc num_regs cfg build_optimized_interference_graph
