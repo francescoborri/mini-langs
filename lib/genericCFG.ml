@@ -72,7 +72,7 @@ let dot_string_of_cfg string_of_code string_of_in_out string_of_node_header cfg
     \    ]"
   in
   let branch_node_style =
-    "shape=diamond margin=\"0.075,0.075\" color=10 fontcolor=10 fillcolor=9"
+    "shape=diamond margin=0.075 color=10 fontcolor=10 fillcolor=9"
   in
   let in_node_style =
     "shape=box color=4 fontcolor=4 fillcolor=3"
