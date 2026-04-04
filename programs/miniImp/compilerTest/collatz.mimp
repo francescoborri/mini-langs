@@ -1,0 +1,15 @@
+def main with input x output y as
+    y := 0;
+    while not (x < 2 and not x < 1) do (
+        m := 0;
+        q := x;
+        while not q < 2 do (
+            m := m + 1;
+            q := q - 2
+        );
+        if q < 1 and not q < 0 then
+            x := m
+        else
+            x := 3 * x + 1;
+        y := y + 1
+    )
