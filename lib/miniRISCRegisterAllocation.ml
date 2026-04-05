@@ -518,6 +518,7 @@ let restore_reg_in_out reg_coloring reg_in_addr reg_out_addr cfg =
                   raise
                     (RegisterAllocationError
                        "The initial node should have at least one instruction")
+              | Some [ Nop ] -> Some store_instrs
               | Some instrs -> Some (store_instrs @ instrs))
             cfg.code_map
         in
@@ -531,6 +532,7 @@ let restore_reg_in_out reg_coloring reg_in_addr reg_out_addr cfg =
                   raise
                     (RegisterAllocationError
                        "The initial node should have at least one instruction")
+              | Some [ Nop ] -> Some [ copy_instr ]
               | Some instrs -> Some (copy_instr :: instrs))
             cfg.code_map
         in
@@ -555,6 +557,7 @@ let restore_reg_in_out reg_coloring reg_in_addr reg_out_addr cfg =
                 raise
                   (RegisterAllocationError
                      "The final node should have at least one instruction")
+            | Some [ Nop ] -> Some load_instrs
             | Some instrs -> Some (instrs @ load_instrs))
           cfg.code_map
       in
@@ -568,6 +571,7 @@ let restore_reg_in_out reg_coloring reg_in_addr reg_out_addr cfg =
                 raise
                   (RegisterAllocationError
                      "The final node should have at least one instruction")
+            | Some [ Nop ] -> Some [ copy_instr ]
             | Some instrs -> Some (instrs @ [ copy_instr ]))
           cfg.code_map
       in
