@@ -9,6 +9,7 @@ let liveness_optimization = ref false
 let propagate_constant = ref false
 let tokens_file = ref ""
 let ast_file = ref ""
+let ast_dot_file = ref ""
 let mimp_cfg_dot_file = ref ""
 let mrisc_cfg_dot_file = ref ""
 let mrisc_cfg_with_jumps_dot_file = ref ""
@@ -47,8 +48,11 @@ let speclist =
        format and write it to the specified file" );
     ( [ "-pa"; "--print-ast" ],
       Arg.Set_string ast_file,
-      "Print the AST in a human-readable format and write it to the specified \
-       file" );
+      "Print the AST in a human-readable text format and write it to the \
+       specified file" );
+    ( [ "-pad"; "--print-ast-dot" ],
+      Arg.Set_string ast_dot_file,
+      "Print the AST in dot format and write it to the specified file" );
     ( [ "-pmi"; "--print-mimp-cfg" ],
       Arg.Set_string mimp_cfg_dot_file,
       "Render the MiniImp CFG in dot format and write it to the specified file"
@@ -82,6 +86,9 @@ let print_tokens filename =
 
 let print_ast filename =
   MiniImpLib.Utils.string_of_ast >> write_to_file filename
+
+let print_ast_dot filename =
+  MiniImpLib.Utils.dot_string_of_ast >> write_to_file filename
 
 let print_mini_imp_cfg filename =
   MiniImpLib.Utils.dot_string_of_cfg >> write_to_file filename
@@ -125,6 +132,7 @@ let () =
         if !propagate_constant then MiniImpLib.propagate_constants ast else ast
       in
       if !ast_file <> "" then print_ast !ast_file ast;
+      if !ast_dot_file <> "" then print_ast_dot !ast_dot_file ast;
       let mimp_cfg = MiniImpLib.build_cfg ast in
       if !mimp_cfg_dot_file <> "" then
         print_mini_imp_cfg !mimp_cfg_dot_file mimp_cfg;

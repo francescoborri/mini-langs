@@ -74,12 +74,8 @@ let dot_string_of_cfg string_of_code string_of_in_out string_of_node_header cfg
   let branch_node_style =
     "shape=diamond margin=0.075 color=10 fontcolor=10 fillcolor=9"
   in
-  let in_node_style =
-    "shape=box color=4 fontcolor=4 fillcolor=3"
-  in
-  let out_node_style =
-    "shape=box color=6 fontcolor=6 fillcolor=5"
-  in
+  let in_node_style = "shape=box color=4 fontcolor=4 fillcolor=3" in
+  let out_node_style = "shape=box color=6 fontcolor=6 fillcolor=5" in
   let (Node initial_node_id) = cfg.initial_node in
   let (Node final_node_id) = cfg.final_node in
   let build_label header label =
@@ -126,11 +122,7 @@ let dot_string_of_cfg string_of_code string_of_in_out string_of_node_header cfg
     match (rev_code, NodeMap.find_opt (Node src_node_id) cfg.edges) with
     | _, None -> ""
     | _, Some (Next (Node dest_node_id)) ->
-        if dest_node_id >= src_node_id then
-          Printf.sprintf "    %d:s -> %d:n" src_node_id dest_node_id
-        else
-          Printf.sprintf "    %d:_ -> %d:_ [style=dashed]" src_node_id
-            dest_node_id
+        Printf.sprintf "    %d:s -> %d:n" src_node_id dest_node_id
     | [ last_instr ], Some (Branch (Node dest_node_id1, Node dest_node_id2)) ->
         Printf.sprintf
           "    %d:sw -> %d:n [xlabel=\"true\"]\n\
@@ -140,7 +132,7 @@ let dot_string_of_cfg string_of_code string_of_in_out string_of_node_header cfg
         Some (Branch (Node dest_node_id1, Node dest_node_id2)) ) ->
         let branching_node = branching_node (Node src_node_id) in
         Printf.sprintf
-          "    %d:s -> %s:n\n\
+          "    %d:s -> %s:n [style=dashed]\n\
           \    %s:sw -> %d:n [xlabel=\"true\"]\n\
           \    %s:se -> %d:n [xlabel=\"false\"]"
           src_node_id branching_node branching_node dest_node_id1 branching_node
