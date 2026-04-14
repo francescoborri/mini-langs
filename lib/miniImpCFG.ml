@@ -54,18 +54,14 @@ let rec propagate_constants_bexpr = function
   | Not bexpr -> (
       let bexpr' = propagate_constants_bexpr bexpr in
       match bexpr' with
-      | Bool true -> Bool false
-      | Bool false -> Bool true
+      | Bool b -> Bool (not b)
       | _ -> Not bexpr')
 
 (** Given a [cmd], it returns an equivalent [cmd] where constant subexpressions
     have been evaluated. *)
 let rec propagate_constants_cmd = function
   | Skip -> Skip
-  | Assign (x, aexpr) -> (
-      match propagate_constants_aexpr aexpr with
-      | Int n -> Assign (x, Int n)
-      | aexpr' -> Assign (x, aexpr'))
+  | Assign (x, aexpr) -> Assign (x, propagate_constants_aexpr aexpr)
   | Seq (cmd1, cmd2) ->
       let cmd1' = propagate_constants_cmd cmd1 in
       let cmd2' = propagate_constants_cmd cmd2 in
@@ -82,9 +78,8 @@ let rec propagate_constants_cmd = function
       let cond' = propagate_constants_bexpr cond in
       let body_cmd' = propagate_constants_cmd body_cmd in
       match cond' with
-      | Bool true -> While (cond', body_cmd')
       | Bool false -> Skip
-      | _ -> While (cond', body_cmd'))
+      | Bool true | _ -> While (cond', body_cmd'))
 
 (** Given a [prog], it returns an equivalent [prog] where constant
     subexpressions have been evaluated. *)

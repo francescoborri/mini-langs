@@ -112,7 +112,7 @@ let dot_string_of_ast (Prog (input, output, cmd)) =
           match atom with
           | Int n -> string_of_int n
           | Var x -> x
-          | _ -> failwith "unreachable"
+          | _ -> assert false
         in
         let node_str =
           Printf.sprintf "    %d [label=\"%s\" %s]" next_node label aexpr_style
@@ -134,7 +134,7 @@ let dot_string_of_ast (Prog (input, output, cmd)) =
           | Add _ -> "+"
           | Sub _ -> "-"
           | Mul _ -> "*"
-          | _ -> failwith "unreachable"
+          | _ -> assert false
         in
         let node_str =
           Printf.sprintf "    %d [label=\"%s\" %s]" node_id label aexpr_style
@@ -162,7 +162,7 @@ let dot_string_of_ast (Prog (input, output, cmd)) =
           | And (bexpr1, _) ->
               build_nodes_edges_bexpr root_aexpr1 nodes edges bexpr1
           | Not bexpr -> build_nodes_edges_bexpr root_aexpr1 nodes edges bexpr
-          | _ -> failwith "unreachable"
+          | _ -> assert false
         in
         let root_aexpr2 = next_node in
         let next_node, nodes, edges =
@@ -172,14 +172,14 @@ let dot_string_of_ast (Prog (input, output, cmd)) =
           | And (_, bexpr2) ->
               build_nodes_edges_bexpr root_aexpr2 nodes edges bexpr2
           | Not _ -> (next_node, nodes, edges)
-          | _ -> failwith "unreachable"
+          | _ -> assert false
         in
         let label =
           match bexpr with
           | LessThan _ -> "<"
           | And _ -> "and"
           | Not _ -> "not"
-          | _ -> failwith "unreachable"
+          | _ -> assert false
         in
         let node_str =
           Printf.sprintf "    %d [label=\"%s\" %s]" node_id label bexpr_style

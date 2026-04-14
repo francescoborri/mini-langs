@@ -6,8 +6,16 @@ open MiniImpCFG
 
 exception UndefinedVariable of string
 
-type undef_var_error = { undef_var : var; expr : expr }
-(** Error type for undefined variables *)
+type error_loc =
+  | Expr of expr
+  | Output of var
+      (** Type for representing the location where an undefined variable is
+          used. It can be either in an expression or as the output variable of
+          the program *)
+
+type undef_var_error = { undef_var : var; error_loc : error_loc }
+(** Type for representing an error of undefined variable. Contains the name of
+    the undefined variable and the location where it is used *)
 
 type node_vars_info = { all_vars : VarSet.t; defined_vars : VarSet.t }
 (** Type for storing variable information at each node. [all_vars] is a set
@@ -77,10 +85,12 @@ let collect_vars_info cfg =
 let analysis_state_top cfg_vars_info =
   let all_vars =
     NodeMap.fold
-      (fun _ node_vars_info all_vars -> VarSet.union node_vars_info.all_vars all_vars)
+      (fun _ node_vars_info all_vars ->
+        VarSet.union node_vars_info.all_vars all_vars)
       cfg_vars_info VarSet.empty
   in
-  cfg_vars_info |> NodeMap.map (fun _ -> { in_vars = all_vars; out_vars = all_vars })
+  cfg_vars_info
+  |> NodeMap.map (fun _ -> { in_vars = all_vars; out_vars = all_vars })
 
 (** Compute the fixpoint of the defined variables analysis for the given CFG.
     Returns a map from each node to its corresponding [node_analysis_state] at
@@ -145,21 +155,23 @@ let analyze cfg =
     | SAssign (var, aexpr) -> (
         let used_vars = collect_vars_aexpr aexpr VarSet.empty in
         match
-          VarSet.find_first_opt
+          VarSet.filter
             (fun used_var -> not (VarSet.mem used_var in_vars))
             used_vars
+          |> VarSet.choose_opt
         with
         | None -> Left (VarSet.add var in_vars)
-        | Some undef_var -> Right { undef_var; expr = Aexpr aexpr })
+        | Some undef_var -> Right { undef_var; error_loc = Expr (Aexpr aexpr) })
     | SGuard bexpr -> (
         let used_vars = collect_vars_bexpr bexpr VarSet.empty in
         match
-          VarSet.find_first_opt
+          VarSet.filter
             (fun used_var -> not (VarSet.mem used_var in_vars))
             used_vars
+          |> VarSet.choose_opt
         with
         | None -> Left in_vars
-        | Some undef_var -> Right { undef_var; expr = Bexpr bexpr })
+        | Some undef_var -> Right { undef_var; error_loc = Expr (Bexpr bexpr) })
   in
   let check_node node instrs errors =
     let in_vars = (NodeMap.find node fixpoint).in_vars in
@@ -170,7 +182,13 @@ let analyze cfg =
           | Left in_vars -> check_simple_cmd in_vars simple_cmd
           | Right error -> Right error)
         (Left in_vars) instrs
+      |> function
+      | Left in_vars ->
+          if node = cfg.final_node && not (VarSet.mem cfg.output in_vars) then
+            Right { undef_var = cfg.output; error_loc = Output cfg.output }
+          else Left in_vars
+      | Right error -> Right error
     in
-    match outcome with Left _ -> errors | Right error -> error :: errors
+    match outcome with Left in_vars -> errors | Right error -> error :: errors
   in
   NodeMap.fold check_node cfg.code_map []

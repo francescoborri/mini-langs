@@ -36,17 +36,25 @@ let build_cfg = CFG.build_cfg
 let check_undef_vars cfg =
   match DefinedVariablesAnalysis.analyze cfg with
   | [] -> ()
-  | [ { undef_var; expr } ] ->
+  | [ { undef_var; error_loc = Expr expr } ] ->
       raise
         (UndefinedVariable
            (Printf.sprintf "Undefined variable '%s' used in '%s'" undef_var
-              (Utils.string_of_expr expr)))
+              (MiniImpUtils.string_of_expr expr)))
+  | [ { undef_var; error_loc = Output output } ] ->
+      raise
+        (UndefinedVariable
+           (Printf.sprintf "Undefined output variable '%s'" undef_var))
   | errors ->
       let msg =
         errors
-        |> List.map (fun { undef_var; expr } ->
-            Printf.sprintf "  - variable '%s' in expression '%s'" undef_var
-              (Utils.string_of_expr expr))
+        |> List.map (fun { undef_var; error_loc } ->
+            match error_loc with
+            | Expr expr ->
+                Printf.sprintf "  - variable '%s' in expression '%s'" undef_var
+                  (MiniImpUtils.string_of_expr expr)
+            | Output output ->
+                Printf.sprintf "  - output variable '%s'" undef_var)
         |> String.concat "\n"
       in
       raise (UndefinedVariable ("There were undefined variables:\n" ^ msg))

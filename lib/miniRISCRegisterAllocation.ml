@@ -194,12 +194,27 @@ let build_optimized_interference_graph cfg =
     (degree + 1) *)
 let build_interference_graph cfg building_fun =
   let edges, spill_cost_map = building_fun cfg in
+  (* If the output register is not present in the spill cost map, then it doesn't
+  appear anywhere in the program, meaning that the output variable is undefined
+  and the program should fail at runtime. We can't always guarantee this behaviour
+  as the output register may be used as a color for other registers, leading to a 
+  different semantics. To avoid this, we have to stop the compilation and raise an 
+  undefined variable error, even if the undefined variables check is not set *)
+  if not (RegMap.mem cfg.output spill_cost_map) then
+    raise
+      (MiniImpLib.DefinedVariablesAnalysis.UndefinedVariable
+         "Undefined output variable");
   let degree_priority_set, spill_cost_priority_set =
     RegMap.fold
       (fun reg neighbors (degree_set, spill_cost_set) ->
         let degree = RegSet.cardinal neighbors in
         let spill_cost =
-          RegMap.find reg spill_cost_map /. float_of_int (degree + 1)
+          match RegMap.find_opt reg spill_cost_map with
+          | Some cost -> cost /. float_of_int (degree + 1)
+          | None ->
+              raise
+                (RegisterAllocationError
+                   "Detected a register that should have been collected")
         in
         let color = invalid_color in
         let node = pack_node reg degree spill_cost color in
@@ -504,11 +519,8 @@ let spill_cfg spilled_regs cfg =
 let restore_reg_in_out reg_coloring reg_in_addr reg_out_addr cfg =
   let cfg =
     match (reg_in_addr, RegMap.find_opt RegIn reg_coloring) with
-    | None, None ->
-        raise
-          (RegisterAllocationError
-             "In register should be one of spilled or colored")
-    | None, Some RegIn -> cfg
+    (* It may happen that the in register is unused and thus it is not colored nor spilled *)
+    | None, None | None, Some RegIn -> cfg
     | Some addr, None ->
         let store_instrs = [ LoadImm (addr, RegA); Store (RegIn, RegA) ] in
         let code_map =
@@ -540,13 +552,13 @@ let restore_reg_in_out reg_coloring reg_in_addr reg_out_addr cfg =
     | Some _, Some _ ->
         raise
           (RegisterAllocationError
-             "In register cannot be both spilled and colored")
+             "The in register cannot be both spilled and colored")
   in
   match (reg_out_addr, RegMap.find_opt RegOut reg_coloring) with
   | None, None ->
       raise
         (RegisterAllocationError
-           "Out register should be one of spilled or colored")
+           "The out register should be one of spilled or colored")
   | None, Some RegOut -> cfg
   | Some addr, None ->
       let load_instrs = [ LoadImm (addr, RegA); Load (RegA, RegOut) ] in
@@ -579,7 +591,7 @@ let restore_reg_in_out reg_coloring reg_in_addr reg_out_addr cfg =
   | Some _, Some _ ->
       raise
         (RegisterAllocationError
-           "Out register cannot be both spilled and colored")
+           "The out register cannot be both spilled and colored")
 
 (** Orchestrates the register allocation process by building the interference
     graph using [building_function], running the Chaitin-Briggs algorithm to get

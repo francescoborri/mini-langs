@@ -1,0 +1,4 @@
+def main with input x output y as
+    y := 5 + 0 * x
+    
+    

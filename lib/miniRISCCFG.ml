@@ -60,9 +60,6 @@ let rec compile_aexpr var_reg_map dest_reg = function
   | Var x ->
       let src_reg, var_reg_map = VarRegMap.lookup x var_reg_map in
       ([ UnOp (Copy, src_reg, dest_reg) ], var_reg_map)
-  | Add (Int n, Int m) -> ([ LoadImm (n + m, dest_reg) ], var_reg_map)
-  | Add (Int 0, aexpr) | Add (aexpr, Int 0) ->
-      compile_aexpr var_reg_map dest_reg aexpr
   | Add (Int n, Var x) | Add (Var x, Int n) ->
       let src_reg, var_reg_map = VarRegMap.lookup x var_reg_map in
       ([ BinImmOp (AddImm, src_reg, n, dest_reg) ], var_reg_map)
@@ -87,8 +84,6 @@ let rec compile_aexpr var_reg_map dest_reg = function
       let instrs2, var_reg_map = compile_aexpr var_reg_map dest_reg aexpr2 in
       ( instrs1 @ instrs2 @ [ BinRegOp (Add, temp_reg, dest_reg, dest_reg) ],
         var_reg_map )
-  | Sub (Int n, Int m) -> ([ LoadImm (n - m, dest_reg) ], var_reg_map)
-  | Sub (aexpr, Int 0) -> compile_aexpr var_reg_map dest_reg aexpr
   | Sub (Var x, Int n) ->
       let src_reg, var_reg_map = VarRegMap.lookup x var_reg_map in
       ([ BinImmOp (SubImm, src_reg, n, dest_reg) ], var_reg_map)
@@ -137,11 +132,6 @@ let rec compile_aexpr var_reg_map dest_reg = function
       let instrs2, var_reg_map = compile_aexpr var_reg_map dest_reg aexpr2 in
       ( instrs1 @ instrs2 @ [ BinRegOp (Sub, temp_reg, dest_reg, dest_reg) ],
         var_reg_map )
-  | Mul (Int n, Int m) -> ([ LoadImm (n * m, dest_reg) ], var_reg_map)
-  | Mul (aexpr, Int 0) | Mul (Int 0, aexpr) ->
-      ([ LoadImm (0, dest_reg) ], var_reg_map)
-  | Mul (aexpr, Int 1) | Mul (Int 1, aexpr) ->
-      compile_aexpr var_reg_map dest_reg aexpr
   | Mul (Int n, Var x) | Mul (Var x, Int n) ->
       let src_reg, var_reg_map = VarRegMap.lookup x var_reg_map in
       ([ BinImmOp (MulImm, src_reg, n, dest_reg) ], var_reg_map)
@@ -175,22 +165,15 @@ let rec compile_aexpr var_reg_map dest_reg = function
     [BinImmOp] instructions when possible *)
 let rec compile_bexpr var_reg_map dest_reg = function
   | Bool b -> ([ LoadImm ((if b then 1 else 0), dest_reg) ], var_reg_map)
-  | And (bexpr1, Bool true) | And (Bool true, bexpr1) ->
-      compile_bexpr var_reg_map dest_reg bexpr1
-  | And (bexpr1, Bool false) | And (Bool false, bexpr1) ->
-      ([ LoadImm (0, dest_reg) ], var_reg_map)
   | And (bexpr1, bexpr2) ->
       let temp_reg, var_reg_map = VarRegMap.fresh_reg var_reg_map in
       let instrs1, var_reg_map = compile_bexpr var_reg_map temp_reg bexpr1 in
       let instrs2, var_reg_map = compile_bexpr var_reg_map dest_reg bexpr2 in
       ( instrs1 @ instrs2 @ [ BinRegOp (And, temp_reg, dest_reg, dest_reg) ],
         var_reg_map )
-  | Not (Bool b) -> ([ LoadImm ((if b then 0 else 1), dest_reg) ], var_reg_map)
   | Not bexpr ->
       let instrs, var_reg_map = compile_bexpr var_reg_map dest_reg bexpr in
       (instrs @ [ UnOp (Not, dest_reg, dest_reg) ], var_reg_map)
-  | LessThan (Int n, Int m) ->
-      ([ LoadImm ((if n < m then 1 else 0), dest_reg) ], var_reg_map)
   (* The two subsequent branches do not create any clash problem between src_reg and dest_reg since 
   boolean values cannot be assigned to variables, and thus dest_reg is always different from src_reg *)
   | LessThan (Int n, Var x) ->

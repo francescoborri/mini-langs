@@ -122,7 +122,9 @@ let dot_string_of_cfg string_of_code string_of_in_out string_of_node_header cfg
     match (rev_code, NodeMap.find_opt (Node src_node_id) cfg.edges) with
     | _, None -> ""
     | _, Some (Next (Node dest_node_id)) ->
-        Printf.sprintf "    %d:s -> %d:n" src_node_id dest_node_id
+        if src_node_id < dest_node_id then
+          Printf.sprintf "    %d:s -> %d:n" src_node_id dest_node_id
+        else Printf.sprintf "    %d -> %d" src_node_id dest_node_id
     | [ last_instr ], Some (Branch (Node dest_node_id1, Node dest_node_id2)) ->
         Printf.sprintf
           "    %d:sw -> %d:n [xlabel=\"true\"]\n\
