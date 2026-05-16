@@ -1,6 +1,5 @@
 open Utils
 open Utils.ColorText
-open MiniRISCLib
 
 let num_regs = ref None
 let src = ref ""
@@ -42,10 +41,11 @@ let () =
       Printf.printf "%d\n" output
     with
     | Arg.Bad _ -> Arg.usage speclist usage_msg
-    | Lexer.LexicalError msg ->
+    | MiniRISCLib.Lexer.LexicalError msg ->
         Printf.eprintf "%s %s\n" (color_text red "[Lexical error]") msg
-    | Parser.Error -> prerr_endline (color_text red "[Syntax error]")
-    | Interpreter.RuntimeError msg ->
+    | MiniRISCLib.Parser.Error ->
+        prerr_endline (color_text red "[Syntax error]")
+    | MiniRISCLib.Interpreter.RuntimeError msg ->
         Printf.eprintf "%s %s\n" (color_text red "[Runtime error]") msg
     | Sys_error msg ->
         Printf.eprintf "%s %s\n" (color_text red "[IO error]") msg

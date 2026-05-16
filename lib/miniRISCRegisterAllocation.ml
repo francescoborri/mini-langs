@@ -159,7 +159,7 @@ let build_standard_interference_graph cfg =
     analysis to derive the live ranges and add edges only between registers that
     are live at the same time *)
 let build_optimized_interference_graph cfg =
-  let live_regs_info = live_regs_analysis cfg in
+  let live_regs = analyze cfg in
   let regs, spill_cost_map = collect_regs_with_spill_cost cfg in
   let edges =
     RegSet.fold
@@ -168,7 +168,7 @@ let build_optimized_interference_graph cfg =
   in
   ( NodeMap.fold
       (fun node instrs edges ->
-        let live_now = (NodeMap.find node live_regs_info).out_regs in
+        let live_now = (NodeMap.find node live_regs).out_values in
         List.fold_right
           (fun instr (live_now, edges) ->
             let live_now, edges =

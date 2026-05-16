@@ -31,6 +31,11 @@
  (libraries utils))
 
 (library
+ (name dataflowAnalysis)
+ (modules dataflowAnalysis)
+ (libraries utils genericCFG))
+
+(library
  (name utils)
  (modules utils colorText))
 
@@ -46,7 +51,7 @@
   miniImpUtils
   miniImpDefinedVariablesAnalysis)
  (modules_without_implementation miniImpAST)
- (libraries var env genericCFG utils))
+ (libraries var env genericCFG dataflowAnalysis utils))
 
 (library
  (name miniFunLib)
@@ -80,4 +85,4 @@
   miniRISCRegUtils
   miniRISCUtils)
  (modules_without_implementation miniRISCInstructionSet)
- (libraries var genericCFG miniImpLib utils))
+ (libraries var genericCFG miniImpLib dataflowAnalysis utils))

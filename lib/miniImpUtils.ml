@@ -1,7 +1,7 @@
-open Utils
 open MiniImpParser
 open MiniImpAST
 open MiniImpCFG
+open Utils
 
 let string_of_token = function
   | INT n -> Printf.sprintf "INT %d" n

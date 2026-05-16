@@ -1,9 +1,10 @@
 open GenericCFG
-open Utils
+open DataflowAnalysis
 open MiniRISCInstructionSet
 open MiniRISCParser
 open MiniRISCLiveRegistersAnalysis
 open MiniRISCRegUtils
+open Utils
 
 let string_of_reg = function
   | Reg n -> Printf.sprintf "r%d" n
@@ -77,14 +78,15 @@ let dot_string_of_cfg_with_jumps cfg =
     (label_of_node cfg >> string_of_label >> Option.some)
     cfg
 
-let string_of_live_regs cfg analysis_state =
-  analysis_state
-  |> NodeMap.mapi (fun node { in_regs; out_regs } ->
+let string_of_live_regs cfg analysis_result =
+  analysis_result
+  |> NodeMap.mapi (fun node { in_values; out_values } ->
       let label = label_of_node cfg node in
-      Printf.sprintf "%s:\n  - Live in: { %s }\n  - Live out: { %s }" (string_of_label label)
-        (in_regs |> RegSet.to_list |> List.map string_of_reg
+      Printf.sprintf "%s:\n  - Live in: { %s }\n  - Live out: { %s }"
+        (string_of_label label)
+        (in_values |> RegSet.to_list |> List.map string_of_reg
        |> String.concat ", ")
-        (out_regs |> RegSet.to_list |> List.map string_of_reg
+        (out_values |> RegSet.to_list |> List.map string_of_reg
        |> String.concat ", "))
   |> NodeMap.to_list |> List.map snd |> String.concat "\n"
 

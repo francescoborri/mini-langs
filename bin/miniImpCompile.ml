@@ -101,7 +101,7 @@ let print_mini_risc_cfg_with_jumps filename =
 
 let print_mrisc_live_regs mini_risc_cfg_with_jumps =
   let live_regs =
-    MiniRISCLib.LiveRegistersAnalysis.live_regs_analysis
+    MiniRISCLib.LiveRegistersAnalysis.analyze
       mini_risc_cfg_with_jumps
   in
   MiniRISCLib.Utils.string_of_live_regs mini_risc_cfg_with_jumps live_regs
